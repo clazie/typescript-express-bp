@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      table, th, td {
+         border: 1px solid black;
+         border-collapse: collapse; 
+      }
+      td, th {
+         padding: 10px;
+      }
+   </style>
+  </head>
+
+  <body>
+    <h1>Tasks Example for Typescript REST-Api with express.</h1>
+    
+    <button onclick="tasklist()">Tasklist</button>
+    <button onclick="create()">Create</button>
+    <button onclick="update(1)">Update 1</button>
+    <button onclick="erase(1)">Delete 1</button>
+    <button onclick="DeleteAll()">Delete All</button>
+    <p id="msg"></p>
+    <div id="container"></div>
+    <pre><code id="json"></code></pre>
+  </body>
+
+  <script>
+    tasks = []
+
+    async function tasklist(){
+      console.log('TaskList')
+      //document.getElementById("msg").innerHTML = "tasklist";
+      await fetch('tasks', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+    .then(response => response.json())
+    .then((response) => {
+      tasks = response;
+        const dataString = JSON.stringify(tasks, null, 2);
+        console.log(dataString)
+        document.getElementById("json").innerHTML = dataString;
+        
+        CreateTable(tasks);
+
+      })
+      console.log('TaskList end')
+    }
+
+    // Create a new task
+    async function create(){
+      console.log('Create')
+      document.getElementById("msg").innerHTML = "create";
+      await fetch(`tasks`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "title": "Test",
+          "description": "Test",
+          "completed": false
+        })
+      })
+      .then(res => res.json())
+      .then(async (res) => {
+        console.log(res);
+        await tasklist();
+      });
+      console.log('Create end')
+    }
+
+    // Update Task with id = id
+    async function update(id){
+      console.log('Update')
+      document.getElementById("msg").innerHTML = "update";
+      await fetch(`tasks/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "title": "Test 1",
+          "description": "Test 1",
+          "completed": true
+        })
+      })
+      .then(res => res.json())
+      .then(async (res) => {
+        console.log(res);
+        console.log( "Update Element " + id)
+        await tasklist();
+      });
+      console.log('Update end')
+    }
+
+    //Delete the Task with id = id
+    async function erase(id){
+      console.log('Erase')
+      document.getElementById("msg").innerHTML = "delete";
+      await fetch(`tasks/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(async (res) => {
+        console.log(res);
+        console.log( "Erase Element " + id)
+        await tasklist();
+      }
+      );
+      console.log('Erase end')
+    }
+
+    //Delete all Tasks
+    async function DeleteAll(){
+      console.log('DeleteAll')
+      await tasklist();
+      for(const e of tasks){
+        await erase(e.id);
+      }
+      await tasklist();
+      console.log('DeleteAll end')
+    }
+
+    function CreateTable(t){
+      let container = document.getElementById("container");
+        container.innerHTML = "";
+
+        if((Array.isArray(t)) && (t.length > 0)){
+          // Get the container element where the table will be inserted
+          
+          // Create the table element
+          let table = document.createElement("table");
+          
+          // Get the keys (column names) of the first object in the JSON data
+          let cols = Object.keys(t[0]);
+          
+          // Create the header element
+          let thead = document.createElement("thead");
+          let tr = document.createElement("tr");
+
+          // Loop through the column names and create header cells
+          cols.forEach((item) => {
+            let th = document.createElement("th");
+            th.innerText = item; // Set the column name as the text of the header cell
+            tr.appendChild(th); // Append the header cell to the header row
+          });
+          thead.appendChild(tr); // Append the header row to the header
+          table.append(tr) // Append the header to the table        
+          // Loop through the JSON data and create table rows
+          t.forEach((item) => {
+            console.log("Add Item " + item.id + " to table.");
+              let tr = document.createElement("tr");
+              
+              // Get the values of the current object in the JSON data
+              let vals = Object.values(item);
+              
+              // Loop through the values and create table cells
+              vals.forEach((elem) => {
+                let td = document.createElement("td");
+                td.innerText = elem; // Set the value as the text of the table cell
+                tr.appendChild(td); // Append the table cell to the table row
+              });
+              
+              let btn = document.createElement("button")
+              btn.innerHTML = "X";
+              btn.addEventListener('click',() => {
+                console.log("Add Event " + item.id);
+                erase(item.id);
+              });
+              let td = document.createElement("td");
+              td.appendChild(btn)
+              tr.appendChild(td);
+
+              table.appendChild(tr); // Append the table row to the table
+          });
+          container.appendChild(table) // Append the table to the container element
+        }
+    }
+
+    // Initial get TaskList
+    tasklist();
+  </script>
+</html>

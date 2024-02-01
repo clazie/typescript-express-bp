@@ -1,0 +1,30 @@
+{
+  "name": "typescript-express-bp",
+  "version": "0.0.1",
+  "description": "Typescript express Boilerplate",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "serve": "node dist/index.js",
+    "dev"  : "nodemon src/index.ts"
+  },
+  "keywords": [
+    "Boilerplate"
+  ],
+  "author": "Claus Zielke",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.14",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/express-validator": "^3.0.0",
+    "express-validator": "^7.0.1",
+    "path": "^0.12.7"
+  }
+}
